@@ -7,7 +7,7 @@ const app = express();
 /* ===== MIDDLEWARE ===== */
 app.use(express.json());
 app.use(cors({
-  origin: "*", // allow all (later you can restrict to Netlify URL)
+  origin: "*"
 }));
 
 /* ===== DB CONNECTION ===== */
@@ -15,10 +15,7 @@ const connectDB = async () => {
   try {
     if (mongoose.connection.readyState >= 1) return;
 
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGO_URI);
 
     console.log("✅ MongoDB connected");
   } catch (err) {
@@ -38,12 +35,12 @@ const Contact =
 
 /* ===== ROUTES ===== */
 
-// TEST ROUTE
+// ✅ Test route
 app.get("/", (req, res) => {
   res.send("🚀 API Running Successfully");
 });
 
-// CREATE
+// ✅ CREATE
 app.post("/contact", async (req, res) => {
   try {
     await connectDB();
@@ -52,6 +49,7 @@ app.post("/contact", async (req, res) => {
 
     if (!name || !email) {
       return res.status(400).json({
+        success: false,
         error: "Name and Email are required",
       });
     }
@@ -61,31 +59,38 @@ app.post("/contact", async (req, res) => {
 
     res.status(201).json({
       success: true,
+      message: "Contact saved successfully ✅",
       data: newContact,
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({
+      success: false,
       error: "Server error",
     });
   }
 });
 
-// READ
+// ✅ READ
 app.get("/contact", async (req, res) => {
   try {
     await connectDB();
 
     const data = await Contact.find().sort({ date: -1 });
-    res.json(data);
+
+    res.json({
+      success: true,
+      data,
+    });
   } catch (err) {
     res.status(500).json({
+      success: false,
       error: "Server error",
     });
   }
 });
 
-// UPDATE
+// ✅ UPDATE
 app.put("/contact/:id", async (req, res) => {
   try {
     await connectDB();
@@ -98,19 +103,25 @@ app.put("/contact/:id", async (req, res) => {
 
     if (!updated) {
       return res.status(404).json({
+        success: false,
         error: "Not found",
       });
     }
 
-    res.json(updated);
+    res.json({
+      success: true,
+      message: "Updated successfully ✏️",
+      data: updated,
+    });
   } catch (err) {
     res.status(500).json({
+      success: false,
       error: "Server error",
     });
   }
 });
 
-// DELETE
+// ✅ DELETE
 app.delete("/contact/:id", async (req, res) => {
   try {
     await connectDB();
@@ -119,22 +130,25 @@ app.delete("/contact/:id", async (req, res) => {
 
     if (!deleted) {
       return res.status(404).json({
+        success: false,
         error: "Not found",
       });
     }
 
     res.json({
-      message: "Deleted successfully",
+      success: true,
+      message: "Deleted successfully 🗑️",
     });
   } catch (err) {
     res.status(500).json({
+      success: false,
       error: "Server error",
     });
   }
 });
 
 /* ===== SERVER ===== */
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
