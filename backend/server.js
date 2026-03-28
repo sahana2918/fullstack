@@ -25,10 +25,13 @@ app.use(express.json());
 /* ====== DB CONNECTION FUNCTION ====== */
 const connectDB = async () => {
   try {
-    if (mongoose.connection.readyState === 1) return; // Already connected
+    if (mongoose.connection.readyState === 1) return;
 
     console.log("⏳ Connecting to MongoDB...");
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI, {
+      family: 4   // ✅ FIX ADDED HERE
+    });
+
     console.log("✅ MongoDB Connected Successfully");
   } catch (err) {
     console.error("❌ MongoDB Connection Error:", err.message);
@@ -119,7 +122,7 @@ app.get("/", (req, res) => {
   res.send("CRUD API Running Successfully 🚀");
 });
 
-
+/* 🔥 CONNECT DB */
 connectDB();
 
 /* =====================
