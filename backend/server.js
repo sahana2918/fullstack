@@ -119,6 +119,9 @@ app.get("/", (req, res) => {
   res.send("CRUD API Running Successfully 🚀");
 });
 
+
+connectDB();
+
 /* =====================
        START SERVER
    ===================== */
